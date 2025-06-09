@@ -6,6 +6,7 @@ import { UserManagement } from './UserManagement';
 import { BulletinBoard } from './BulletinBoard';
 import { PMScheduler } from './PMScheduler';
 import { ExportButton } from './ExportButton';
+import DraggableNumi from './DraggableNumi';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 export const UnifiedAdminDashboard: React.FC = () => {
@@ -36,8 +37,9 @@ export const UnifiedAdminDashboard: React.FC = () => {
           <TabsContent value="users"><UserManagement /></TabsContent>
           <TabsContent value="bulletin"><BulletinBoard /></TabsContent>
           <TabsContent value="pm"><PMScheduler /></TabsContent>
-        </Tabs>
-      </div>
+          </Tabs>
     </div>
-  );
-};
+    <DraggableNumi />
+  </div>
+    };
+);
