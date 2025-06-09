@@ -38,8 +38,7 @@ export const UnifiedAdminDashboard: React.FC = () => {
           <TabsContent value="bulletin"><BulletinBoard /></TabsContent>
           <TabsContent value="pm"><PMScheduler /></TabsContent>
           </Tabs>
-    </div>
-    <DraggableNumi />
   </div>
-    };
-);
+  <DraggableNumi />
+  </div>
+  );
