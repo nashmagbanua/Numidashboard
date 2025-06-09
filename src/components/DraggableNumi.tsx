@@ -66,7 +66,7 @@ const DraggableNumi = () => {
           >
             ❌
           </button>
-          <AIPanel />
+          <AIPanel isOpen={true} onClose={() => setIsOpen(false)} />
         </div>
       )}
     </>
