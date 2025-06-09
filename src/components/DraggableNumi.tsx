@@ -11,23 +11,24 @@ const DraggableNumi = () => {
     <>
       <Draggable>
         <div
-          onClick={() => setIsOpen(true)}
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            right: 20,
-            zIndex: 1000,
-            cursor: 'pointer',
-            width: '80px',
-            height: '80px',
-            borderRadius: '50%',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-            backgroundColor: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
+  onClick={() => setIsOpen(true)}
+  style={{
+    position: 'fixed',
+    bottom: 20,
+    right: 20,
+    zIndex: 1000,
+    cursor: 'pointer',
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+    backgroundColor: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    animation: 'bounce 2s infinite'
+  }}
+>
           <img
             src={numiImage}
             alt="Numi"
