@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import Draggable from 'react-draggable';
 import { AIPanel } from './AIPanel';
-import numiImage from '@/assets/numi-doll.png'; // Image must be placed in src/assets/
-
+import numiImage from '../assets/numi-doll.png';
 const DraggableNumi = () => {
   const [isOpen, setIsOpen] = useState(false);
 
