@@ -30,7 +30,7 @@ export const AIPanel: React.FC = () => {
 
   const panelRef = useRef<HTMLDivElement>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null); // Ref for auto-scrolling
 
   const placeholders = [
     "Ask about today's GPM...",
@@ -48,36 +48,44 @@ export const AIPanel: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Desktop-only drag logic
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || isMobile) return;
 
+    let initialX: number, initialY: number;
+
     const handleMouseDown = (e: MouseEvent) => {
+      // Only allow dragging from the header area
       if (!(e.target as HTMLElement).closest('.drag-handle')) return;
 
+      initialX = e.clientX;
+      initialY = e.clientY;
       dragOffset.current = {
         x: e.clientX - panel.getBoundingClientRect().left,
         y: e.clientY - panel.getBoundingClientRect().top,
-      };
-
-      const handleMouseMove = (e: MouseEvent) => {
-        panel.style.left = `${e.clientX - dragOffset.current.x}px`;
-        panel.style.top = `${e.clientY - dragOffset.current.y}px`;
-      };
-
-      const handleMouseUp = () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
       };
 
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      panel.style.left = `${e.clientX - dragOffset.current.x}px`;
+      panel.style.top = `${e.clientY - dragOffset.current.y}px`;
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    // Attach mousedown listener to the panel for dragging
     panel.addEventListener('mousedown', handleMouseDown);
     return () => panel.removeEventListener('mousedown', handleMouseDown);
   }, [isMobile]);
 
+  // Auto-scroll messages to the bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -86,6 +94,7 @@ export const AIPanel: React.FC = () => {
     if (!question.trim()) return;
     setMessages((prev) => [...prev, { type: 'user', text: question }]);
     setQuestion('');
+    // Simulate AI response
     setTimeout(() => {
       setMessages((prev) => [...prev, { type: 'ai', text: "Placeholder reply ni NUMI 🧠" }]);
     }, 1000);
@@ -96,24 +105,11 @@ export const AIPanel: React.FC = () => {
       ref={panelRef}
       className={`
         fixed bg-white rounded-[30px] shadow-lg overflow-hidden transition-all duration-300 ease-in-out
-        ${isOpen ? (isMobile ? 'bottom-4 right-4 w-[90%] h-[70%] max-w-[400px]' : 'top-1/2 left-[80%] -translate-y-1/2 w-[400px] h-[600px]') : ''}
+        ${isMobile ? 'bottom-4 right-4 w-[90%] max-w-[400px] h-[70%] max-h-[600px]' : 'top-1/2 left-[80%] -translate-y-1/2'}
+        ${isOpen ? (isMobile ? 'w-[90%] h-[70%]' : 'w-[400px] h-[600px]') : 'w-[60px] h-[60px]'}
         z-[9999]
       `}
-      style={!isOpen ? {
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        width: '60px',
-        height: '60px',
-        borderRadius: '30px',
-        backgroundColor: 'white',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-      } : {}}
-      onClick={!isOpen ? () => setIsOpen(true) : undefined}
+      style={!isMobile && !isOpen ? { top: 'calc(50% - 30px)', left: 'calc(80% - 30px)' } : {}} // Center closed icon for desktop
     >
       {isOpen ? (
         <div className="flex flex-col h-full">
@@ -134,7 +130,7 @@ export const AIPanel: React.FC = () => {
                 {msg.text}
               </div>
             ))}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} /> {/* For auto-scrolling */}
           </div>
           <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex p-3 border-t border-gray-200">
             <Input
@@ -150,16 +146,17 @@ export const AIPanel: React.FC = () => {
           </form>
         </div>
       ) : (
-        <img
-          src={numiImage}
-          alt="Numi Doll"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            borderRadius: '30px'
-          }}
-        />
+        <div
+          onClick={() => setIsOpen(true)}
+          className="w-full h-full bg-white rounded-[30px] flex items-center justify-center cursor-pointer"
+          aria-label="Open AI chat panel"
+        >
+          <img
+            src={numiImage}
+            alt="Numi Doll"
+            className="w-[80%] h-[80%] object-contain"
+          />
+        </div>
       )}
     </div>
   );
