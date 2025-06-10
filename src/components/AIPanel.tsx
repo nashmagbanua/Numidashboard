@@ -5,16 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import numiImage from '../assets/numi-doll.png';
 
-const placeholderQuestions = [
-  "Ask about today's GPM...",
-  "Bakit walang log si Opscrew kanina?",
-  "Show me Coal Yard status...",
-  "Bakit low ang pressure ng Boiler B?",
-  "Tanong ka lang, kahit Tagalog!",
-  "Check chemical inventory levels..."
-];
+// ✅ Mobile detection hook
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  return isMobile;
+};
 
 export const AIPanel: React.FC = () => {
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -24,16 +30,15 @@ export const AIPanel: React.FC = () => {
 
   const panelRef = useRef<HTMLDivElement>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
-  const isMobile = window.innerWidth <= 768;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % placeholderQuestions.length);
+      setPlaceholderIndex((prev) => (prev + 1) % 6);
     }, 4000);
     return () => clearInterval(interval);
   }, []);
 
-  // 🛠 Disable drag on mobile
+  // ✅ Desktop-only drag logic
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || isMobile) return;
@@ -109,7 +114,7 @@ export const AIPanel: React.FC = () => {
             <Input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder={placeholderQuestions[placeholderIndex]}
+              placeholder={placeholderIndex === 0 ? "Ask about today's GPM..." : ""}
               className="flex-1 mr-2"
             />
             <Button type="submit"><Send size={16} /></Button>
