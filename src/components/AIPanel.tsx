@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Bot } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import numiImage from '../assets/numi-doll.png'; // adjust path if needed
 
 const placeholderQuestions = [
   "Ask about today's GPM...",
@@ -18,7 +19,7 @@ export const AIPanel: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [messages, setMessages] = useState([
-    { type: 'ai', text: "Hi! I'm NUMI, your AI assistant. Ask me anything about the plant operations!" }
+    { type: 'ai', text: "Hi! I'm NUMI, your assistant. Ask me anything about plant operations!" }
   ]);
 
   const panelRef = useRef<HTMLDivElement>(null);
@@ -31,7 +32,7 @@ export const AIPanel: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Draggable logic
+  // Optional: Basic drag logic (desktop)
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
@@ -65,7 +66,7 @@ export const AIPanel: React.FC = () => {
     setMessages((prev) => [...prev, { type: 'user', text: question }]);
     setQuestion('');
     setTimeout(() => {
-      setMessages((prev) => [...prev, { type: 'ai', text: "Placeholder reply ni NUMI 🤖" }]);
+      setMessages((prev) => [...prev, { type: 'ai', text: "Placeholder reply ni NUMI 🧠" }]);
     }, 1000);
   };
 
@@ -91,7 +92,7 @@ export const AIPanel: React.FC = () => {
       {isOpen ? (
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center px-3 py-2 bg-green-600 text-white">
-            <span className="font-bold flex items-center gap-1"><Bot size={18}/> NUMI</span>
+            <span className="font-bold">NUMI Assistant</span>
             <button onClick={() => setIsOpen(false)}><X size={16} /></button>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
@@ -112,20 +113,26 @@ export const AIPanel: React.FC = () => {
           </form>
         </div>
       ) : (
-        <button
+        <div
           onClick={() => setIsOpen(true)}
           style={{
             width: '100%',
             height: '100%',
-            fontSize: '26px',
-            backgroundColor: '#00b894',
-            color: 'white',
-            border: 'none',
-            borderRadius: '30px'
+            backgroundColor: 'white',
+            borderRadius: '30px',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
-          🤖
-        </button>
+          <img
+            src={numiImage}
+            alt="Numi Doll"
+            style={{ width: '80%', height: '80%', objectFit: 'contain' }}
+          />
+        </div>
       )}
     </div>
   );
