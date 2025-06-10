@@ -1,14 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
-import { X, Brain, Send } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Send, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-interface AIPanelProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 const placeholderQuestions = [
   "Ask about today's GPM...",
@@ -19,121 +13,120 @@ const placeholderQuestions = [
   "Check chemical inventory levels..."
 ];
 
-export const AIPanel: React.FC<AIPanelProps> = ({ isOpen, onClose }) => {
+export const AIPanel: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState('');
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [messages, setMessages] = useState([
-    {
-      type: 'ai',
-      text: "Hi! I'm NUMI, your AI assistant. Ask me anything about the plant operations!"
-    }
+    { type: 'ai', text: "Hi! I'm NUMI, your AI assistant. Ask me anything about the plant operations!" }
   ]);
 
+  const panelRef = useRef<HTMLDivElement>(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+
   useEffect(() => {
-    if (isOpen) {
-      const interval = setInterval(() => {
-        setCurrentPlaceholder((prev) => (prev + 1) % placeholderQuestions.length);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [isOpen]);
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholderQuestions.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Draggable logic
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      dragOffset.current = {
+        x: e.clientX - panel.getBoundingClientRect().left,
+        y: e.clientY - panel.getBoundingClientRect().top,
+      };
+
+      const handleMouseMove = (e: MouseEvent) => {
+        panel.style.left = `${e.clientX - dragOffset.current.x}px`;
+        panel.style.top = `${e.clientY - dragOffset.current.y}px`;
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    panel.addEventListener('mousedown', handleMouseDown);
+    return () => panel.removeEventListener('mousedown', handleMouseDown);
+  }, []);
+
+  const handleSend = () => {
     if (!question.trim()) return;
-
-    // Add user message
-    setMessages(prev => [...prev, { type: 'user', text: question }]);
-    
-    // Simulate AI response (placeholder for real AI integration)
-    setTimeout(() => {
-      const responses = [
-        "I'm ready to help analyze your plant operations! Please connect the backend system for real-time data analysis.",
-        "Nakikita ko ang tanong mo, pero kailangan ko ng koneksyon sa database para sa live data.",
-        "System is ready for operations analysis. Please integrate with your data sources for accurate insights.",
-        "I'm designed to help with your manufacturing operations. Backend integration pending for live monitoring."
-      ];
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      setMessages(prev => [...prev, { type: 'ai', text: randomResponse }]);
-    }, 1000);
-
+    setMessages((prev) => [...prev, { type: 'user', text: question }]);
     setQuestion('');
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { type: 'ai', text: "Placeholder reply ni NUMI 🤖" }]);
+    }, 1000);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-md glass-card-solid animate-slide-in">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div className="flex items-center space-x-2">
-            <Brain className="h-6 w-6 text-nums-green-600 animate-pulse" />
-            <CardTitle className="text-lg">Ask NUMI</CardTitle>
+    <div
+      ref={panelRef}
+      style={{
+        position: 'fixed',
+        top: '60%',
+        left: '80%',
+        width: isOpen ? '90%' : '60px',
+        height: isOpen ? '70%' : '60px',
+        maxWidth: '400px',
+        maxHeight: '600px',
+        zIndex: 9999,
+        background: 'white',
+        borderRadius: '30px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+        overflow: 'hidden',
+        transition: 'all 0.3s ease-in-out',
+      }}
+    >
+      {isOpen ? (
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-center px-3 py-2 bg-green-600 text-white">
+            <span className="font-bold flex items-center gap-1"><Bot size={18}/> NUMI</span>
+            <button onClick={() => setIsOpen(false)}><X size={16} /></button>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
-        
-        <CardContent className="space-y-4">
-          {/* Messages */}
-          <div className="h-64 overflow-y-auto space-y-3 bg-white/30 rounded-lg p-3">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] p-2 rounded-lg text-sm ${
-                    message.type === 'user'
-                      ? 'nums-gradient text-white'
-                      : 'bg-white text-gray-800'
-                  }`}
-                >
-                  {message.text}
-                </div>
+          <div className="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+            {messages.map((msg, i) => (
+              <div key={i} className={`p-2 rounded-lg ${msg.type === 'ai' ? 'bg-green-100 text-left' : 'bg-gray-200 text-right'}`}>
+                {msg.text}
               </div>
             ))}
           </div>
-
-          {/* Input */}
-          <form onSubmit={handleSubmit} className="flex space-x-2">
+          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex p-2 border-t">
             <Input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder={placeholderQuestions[currentPlaceholder]}
-              className="flex-1 bg-white/50"
+              placeholder={placeholderQuestions[placeholderIndex]}
+              className="flex-1 mr-2"
             />
-            <Button type="submit" size="sm" className="nums-gradient">
-              <Send className="h-4 w-4" />
-            </Button>
+            <Button type="submit"><Send size={16} /></Button>
           </form>
-
-          {/* Quick Suggestions */}
-          <div className="space-y-2">
-            <p className="text-xs text-gray-600">Quick suggestions:</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                onClick={() => setQuestion("Show today's summary")}
-              >
-                Today's Summary
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                onClick={() => setQuestion("Check alerts")}
-              >
-                Check Alerts
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      ) : (
+        <button
+          onClick={() => setIsOpen(true)}
+          style={{
+            width: '100%',
+            height: '100%',
+            fontSize: '26px',
+            backgroundColor: '#00b894',
+            color: 'white',
+            border: 'none',
+            borderRadius: '30px'
+          }}
+        >
+          🤖
+        </button>
+      )}
     </div>
   );
 };
