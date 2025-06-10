@@ -1,30 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Draggable from 'react-draggable';
 import { AIPanel } from './AIPanel';
 import numiImage from '../assets/numi-doll.png';
 
-// ✅ 1. MOBILE DETECTION HOOK – ILAGAY ITO SA ITAAS
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return isMobile;
-};
-
-// ✅ 2. MAIN COMPONENT – ILALAGAY SA ILALIM NITO
 const DraggableNumi = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useIsMobile();
 
   return (
     <>
-      <Draggable disabled={isMobile}>
+      <Draggable>
         <div
           onClick={() => setIsOpen(true)}
           style={{
@@ -56,18 +41,16 @@ const DraggableNumi = () => {
         <div
           style={{
             position: 'fixed',
-            top: isMobile ? '0' : '10%',
-            left: isMobile ? '0' : '50%',
-            transform: isMobile ? 'none' : 'translateX(-50%)',
-            width: isMobile ? '100%' : '90%',
-            height: isMobile ? '100%' : 'auto',
+            top: '10%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '90%',
             maxWidth: '500px',
             zIndex: 1001,
             backgroundColor: 'white',
-            borderRadius: isMobile ? '0' : '20px',
+            borderRadius: '20px',
             boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-            padding: '20px',
-            overflowY: 'auto'
+            padding: '20px'
           }}
         >
           <button
