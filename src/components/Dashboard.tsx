@@ -7,6 +7,7 @@ import { UserManagement } from '@/components/UserManagement';
 import { BulletinBoard } from '@/components/BulletinBoard';
 import { PMScheduler } from '@/components/PMScheduler';
 import { ExportButton } from '@/components/ExportButton';
+import { AIPanel } from '@/components/AIPanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const Dashboard: React.FC = () => {
@@ -73,6 +74,7 @@ export const Dashboard: React.FC = () => {
           © 2025 ABN Utilities • NutribeV Utility Management System (NUMS)
         </p>
       </footer>
+      <AIPanel />
     </div>
   );
 };
