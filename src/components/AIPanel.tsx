@@ -53,14 +53,10 @@ export const AIPanel: React.FC = () => {
     const panel = panelRef.current;
     if (!panel || isMobile) return;
 
-    let initialX: number, initialY: number;
-
     const handleMouseDown = (e: MouseEvent) => {
       // Only allow dragging from the header area
       if (!(e.target as HTMLElement).closest('.drag-handle')) return;
 
-      initialX = e.clientX;
-      initialY = e.clientY;
       dragOffset.current = {
         x: e.clientX - panel.getBoundingClientRect().left,
         y: e.clientY - panel.getBoundingClientRect().top,
@@ -105,11 +101,19 @@ export const AIPanel: React.FC = () => {
       ref={panelRef}
       className={`
         fixed bg-white rounded-[30px] shadow-lg overflow-hidden transition-all duration-300 ease-in-out
-        ${isMobile ? 'bottom-4 right-4 w-[90%] max-w-[400px] h-[70%] max-h-[600px]' : 'top-1/2 left-[80%] -translate-y-1/2'}
-        ${isOpen ? (isMobile ? 'w-[90%] h-[70%]' : 'w-[400px] h-[600px]') : 'w-[60px] h-[60px]'}
         z-[9999]
+        ${
+          isMobile
+            ? isOpen
+              ? 'bottom-4 right-4 w-[90%] max-w-[400px] h-[70%] max-h-[600px]' // Mobile open: larger but still respecting max-width/height
+              : 'bottom-4 right-4 w-[60px] h-[60px]' // Mobile closed: small bubble at bottom-right
+            : isOpen
+              ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[600px]' // Desktop open: centered, fixed size
+              : 'bottom-8 right-8 w-[60px] h-[60px]' // Desktop closed: small bubble at bottom-right, slightly higher
+        }
       `}
-      style={!isMobile && !isOpen ? { top: 'calc(50% - 30px)', left: 'calc(80% - 30px)' } : {}} // Center closed icon for desktop
+      // The `style` attribute is only for the initial desktop closed position if not using Tailwind's `bottom-8 right-8`
+      // For desktop, we are now also making it a bubble from the bottom right when closed.
     >
       {isOpen ? (
         <div className="flex flex-col h-full">
