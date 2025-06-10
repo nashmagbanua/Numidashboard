@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import numiImage from '../assets/numi-doll.png'; // adjust path if needed
+import numiImage from '../assets/numi-doll.png';
 
 const placeholderQuestions = [
   "Ask about today's GPM...",
@@ -24,6 +24,7 @@ export const AIPanel: React.FC = () => {
 
   const panelRef = useRef<HTMLDivElement>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
+  const isMobile = window.innerWidth <= 768;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,10 +33,10 @@ export const AIPanel: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Optional: Basic drag logic (desktop)
+  // 🛠 Disable drag on mobile
   useEffect(() => {
     const panel = panelRef.current;
-    if (!panel) return;
+    if (!panel || isMobile) return;
 
     const handleMouseDown = (e: MouseEvent) => {
       dragOffset.current = {
@@ -59,7 +60,7 @@ export const AIPanel: React.FC = () => {
 
     panel.addEventListener('mousedown', handleMouseDown);
     return () => panel.removeEventListener('mousedown', handleMouseDown);
-  }, []);
+  }, [isMobile]);
 
   const handleSend = () => {
     if (!question.trim()) return;
@@ -75,8 +76,10 @@ export const AIPanel: React.FC = () => {
       ref={panelRef}
       style={{
         position: 'fixed',
-        top: '60%',
-        left: '80%',
+        top: isMobile ? 'auto' : '60%',
+        left: isMobile ? 'auto' : '80%',
+        bottom: isMobile ? '20px' : 'auto',
+        right: isMobile ? '20px' : 'auto',
         width: isOpen ? '90%' : '60px',
         height: isOpen ? '70%' : '60px',
         maxWidth: '400px',
