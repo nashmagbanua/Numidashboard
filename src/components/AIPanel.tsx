@@ -92,7 +92,7 @@ export const AIPanel: React.FC = () => {
     setQuestion('');
     // Simulate AI response
     setTimeout(() => {
-      setMessages((prev) => [...prev, { type: 'ai', text: "Placeholder reply ni NUMI 🧠" }]);
+      setMessages((prev) => [...prev, { type: 'ai', text: "basta alam mo na eba't adan🧠" }]);
     }, 1000);
   };
 
